@@ -2,8 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Cyber Snake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title>Cyber Shooter</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -15,86 +17,101 @@
     }
 
     body {
-      background: radial-gradient(circle at top, #1a1e29, #0a0c10);
+      background: #060913;
       color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
       height: 100vh;
       overflow: hidden;
-      padding: 12px;
+      padding: 10px;
     }
 
-    /* Верхняя панель со счетом */
-    .scoreboard {
+    .top-bar {
       display: flex;
-      gap: 16px;
       width: 100%;
-      max-width: 380px;
+      max-width: 360px;
       justify-content: space-between;
-    }
-
-    .score-card {
+      align-items: center;
+      padding: 8px 14px;
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 10px 18px;
+      border: 1px solid rgba(0, 240, 255, 0.2);
       border-radius: 14px;
-      text-align: center;
-      flex: 1;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    .score-card .title {
+    .lives {
+      color: #ff3366;
+      font-size: 18px;
+      letter-spacing: 4px;
+    }
+
+    .powerup-indicators {
+      display: flex;
+      gap: 6px;
       font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .badge {
+      padding: 3px 6px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .badge-shield {
+      background: rgba(0, 240, 255, 0.2);
+      border: 1px solid #00f0ff;
+      color: #00f0ff;
+    }
+
+    .badge-double {
+      background: rgba(189, 0, 255, 0.2);
+      border: 1px solid #bd00ff;
+      color: #bd00ff;
+    }
+
+    .score-box {
+      text-align: right;
+    }
+
+    .score-title {
+      font-size: 9px;
       color: #7b88a8;
       text-transform: uppercase;
     }
 
-    .score-card .value {
-      font-size: 24px;
+    .score-val {
+      font-size: 18px;
       font-weight: 800;
       color: #00f0ff;
-      text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
-    }
-
-    .score-card.best .value {
-      color: #ffaa00;
-      text-shadow: 0 0 10px rgba(255, 170, 0, 0.4);
-    }
-
-    /* Игровое поле */
-    .canvas-container {
-      position: relative;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
     canvas {
-      background: #0d1117;
-      border: 2px solid rgba(0, 240, 255, 0.2);
+      background: #0b0f19;
+      border: 2px solid rgba(0, 240, 255, 0.25);
       border-radius: 16px;
-      box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
       display: block;
     }
 
-    /* Кнопки управления (D-Pad) */
     .controls {
-      display: grid;
-      grid-template-columns: repeat(3, 68px);
-      grid-template-rows: repeat(3, 68px);
+      display: flex;
+      width: 100%;
+      max-width: 360px;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .move-group {
+      display: flex;
       gap: 10px;
-      margin-bottom: 10px;
     }
 
     .btn {
-      background: #161b22;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: #151c2c;
+      border: 1px solid rgba(255, 255, 255, 0.12);
       color: #e6edf3;
       border-radius: 18px;
       font-size: 24px;
@@ -102,299 +119,344 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
-      transition: all 0.1s ease;
       outline: none;
+      height: 60px;
+      width: 70px;
     }
 
     .btn:active {
-      background: #00f0ff;
-      color: #0d1117;
       transform: scale(0.92);
-      box-shadow: 0 0 15px #00f0ff;
+      background: #00f0ff;
+      color: #060913;
     }
 
-    #btn-up    { grid-column: 2; grid-row: 1; }
-    #btn-left  { grid-column: 1; grid-row: 2; }
-    #btn-right { grid-column: 3; grid-row: 2; }
-    #btn-down  { grid-column: 2; grid-row: 3; }
+    .btn-fire {
+      width: 105px;
+      background: rgba(255, 51, 102, 0.15);
+      border-color: #ff3366;
+      color: #ff3366;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .btn-fire:active {
+      background: #ff3366;
+      color: #060913;
+    }
   </style>
 </head>
 <body>
 
-  <div class="scoreboard">
-    <div class="score-card">
-      <div class="title">Счёт</div>
-      <div class="value" id="currentScore">0</div>
+  <div class="top-bar">
+    <div class="lives" id="livesEl">♥♥♥</div>
+    <div class="powerup-indicators">
+      <div class="badge badge-shield" id="shieldBadge">ЩИТ</div>
+      <div class="badge badge-double" id="doubleBadge">2X</div>
     </div>
-    <div class="score-card best">
-      <div class="title">Рекорд</div>
-      <div class="value" id="highScore">0</div>
+    <div class="score-box">
+      <div class="score-title">Очки</div>
+      <div class="score-val" id="scoreEl">0</div>
     </div>
   </div>
 
-  <div class="canvas-container">
-    <canvas id="gameCanvas" width="340" height="340"></canvas>
-  </div>
+  <canvas id="gameCanvas" width="330" height="400"></canvas>
 
   <div class="controls">
-    <button class="btn" id="btn-up">▲</button>
-    <button class="btn" id="btn-left">◀</button>
-    <button class="btn" id="btn-right">▶</button>
-    <button class="btn" id="btn-down">▼</button>
+    <div class="move-group">
+      <button class="btn" id="btn-left">◀</button>
+      <button class="btn" id="btn-right">▶</button>
+    </div>
+    <button class="btn btn-fire" id="btn-fire">FIRE</button>
   </div>
 
   <script>
+    const tg = window.Telegram?.WebApp;
+    if (tg) { tg.ready(); tg.expand(); }
+
+    function haptic(type = 'light') {
+      if (tg?.HapticFeedback) {
+        if (type === 'error') tg.HapticFeedback.notificationOccurred('error');
+        else if (type === 'success') tg.HapticFeedback.notificationOccurred('success');
+        else tg.HapticFeedback.impactOccurred(type);
+      }
+    }
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const currentScoreEl = document.getElementById('currentScore');
-    const highScoreEl = document.getElementById('highScore');
+    const scoreEl = document.getElementById('scoreEl');
+    const livesEl = document.getElementById('livesEl');
+    const shieldBadge = document.getElementById('shieldBadge');
+    const doubleBadge = document.getElementById('doubleBadge');
 
-    // Настройки поля
-    const gridSize = 17; // 20 клеток по 17px = 340px
-    const tileCount = canvas.width / gridSize;
-    const TOTAL_FOOD = 3; // Количество яблок одновременно на поле
-
-    let snake = [];
-    let foods = [];
-    let dx = gridSize;
-    let dy = 0;
-    let nextDx = gridSize;
-    let nextDy = 0;
     let score = 0;
-    let highScore = localStorage.getItem('snake_highscore') || 0;
-    let gameInterval = null;
+    let lives = 3;
+    let gameOver = false;
 
-    highScoreEl.textContent = highScore;
+    const player = {
+      x: canvas.width / 2 - 16,
+      y: canvas.height - 45,
+      w: 32,
+      h: 24,
+      speed: 5,
+      hasShield: false,
+      doubleUntil: 0
+    };
+
+    let moveLeft = false;
+    let moveRight = false;
+    let isFiring = false;
+    let lastFire = 0;
+
+    let bullets = [];
+    let enemies = [];
+    let powerups = [];
+    let particles = [];
+    let stars = [];
+
+    for (let i = 0; i < 40; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5 + 0.5,
+        speed: Math.random() * 1.5 + 0.5
+      });
+    }
+
+    function spawnEnemy() {
+      if (gameOver) return;
+      enemies.push({
+        x: Math.random() * (canvas.width - 26),
+        y: -25,
+        w: 24,
+        h: 20,
+        speed: Math.random() * 1.5 + 1.5
+      });
+    }
+    setInterval(spawnEnemy, 950);
+
+    function createExplosion(x, y, color) {
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x, y,
+          vx: (Math.random() - 0.5) * 5,
+          vy: (Math.random() - 0.5) * 5,
+          life: 1,
+          color
+        });
+      }
+    }
+
+    function trySpawnPowerup(x, y) {
+      if (Math.random() < 0.3) {
+        powerups.push({
+          x, y,
+          speed: 1.8,
+          type: Math.random() < 0.5 ? 'shield' : 'double'
+        });
+      }
+    }
+
+    function fireBullet() {
+      const now = Date.now();
+      if (now - lastFire > 190) {
+        const isDouble = now < player.doubleUntil;
+        if (isDouble) {
+          bullets.push({ x: player.x + 2, y: player.y - 4, w: 4, h: 10, speed: 8, color: '#bd00ff' });
+          bullets.push({ x: player.x + player.w - 6, y: player.y - 4, w: 4, h: 10, speed: 8, color: '#bd00ff' });
+        } else {
+          bullets.push({ x: player.x + player.w / 2 - 2, y: player.y - 6, w: 4, h: 10, speed: 8, color: '#00f0ff' });
+        }
+        haptic('light');
+        lastFire = now;
+      }
+    }
 
     function resetGame() {
       score = 0;
-      currentScoreEl.textContent = score;
-      dx = gridSize;
-      dy = 0;
-      nextDx = gridSize;
-      nextDy = 0;
-
-      // Начальная змейка
-      snake = [
-        { x: gridSize * 5, y: gridSize * 10 },
-        { x: gridSize * 4, y: gridSize * 10 },
-        { x: gridSize * 3, y: gridSize * 10 }
-      ];
-
-      // Спавним все яблоки
-      foods = [];
-      for (let i = 0; i < TOTAL_FOOD; i++) {
-        spawnSingleFood();
-      }
-    }
-
-    function spawnSingleFood() {
-      let position;
-      let collision;
-      do {
-        collision = false;
-        position = {
-          x: Math.floor(Math.random() * tileCount) * gridSize,
-          y: Math.floor(Math.random() * tileCount) * gridSize
-        };
-        // Проверяем, чтобы не упало на змейку
-        for (let seg of snake) {
-          if (seg.x === position.x && seg.y === position.y) {
-            collision = true;
-            break;
-          }
-        }
-        // И на другое уже лежащее яблоко
-        for (let f of foods) {
-          if (f.x === position.x && f.y === position.y) {
-            collision = true;
-            break;
-          }
-        }
-      } while (collision);
-
-      foods.push(position);
+      lives = 3;
+      gameOver = false;
+      player.x = canvas.width / 2 - 16;
+      player.hasShield = false;
+      player.doubleUntil = 0;
+      bullets = [];
+      enemies = [];
+      powerups = [];
+      particles = [];
+      scoreEl.textContent = '0';
+      livesEl.textContent = '♥♥♥';
     }
 
     function update() {
-      dx = nextDx;
-      dy = nextDy;
+      if (gameOver) return;
 
-      const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+      const now = Date.now();
+      shieldBadge.style.display = player.hasShield ? 'block' : 'none';
+      doubleBadge.style.display = now < player.doubleUntil ? 'block' : 'none';
 
-      // Столкновение со стенами -> Рестарт
-      if (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height) {
-        return resetGame();
+      if (moveLeft && player.x > 4) player.x -= player.speed;
+      if (moveRight && player.x < canvas.width - player.w - 4) player.x += player.speed;
+      if (isFiring) fireBullet();
+
+      stars.forEach(s => {
+        s.y += s.speed;
+        if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+      });
+
+      for (let i = bullets.length - 1; i >= 0; i--) {
+        bullets[i].y -= bullets[i].speed;
+        if (bullets[i].y < -20) bullets.splice(i, 1);
       }
 
-      // Столкновение с собственным хвостом
-      for (let segment of snake) {
-        if (head.x === segment.x && head.y === segment.y) {
-          return resetGame();
+      for (let i = powerups.length - 1; i >= 0; i--) {
+        const p = powerups[i];
+        p.y += p.speed;
+        if (p.x > player.x - 10 && p.x < player.x + player.w + 10 &&
+            p.y > player.y - 10 && p.y < player.y + player.h + 10) {
+          if (p.type === 'shield') player.hasShield = true;
+          if (p.type === 'double') player.doubleUntil = now + 10000;
+          haptic('success');
+          createExplosion(p.x, p.y, p.type === 'shield' ? '#00f0ff' : '#bd00ff');
+          powerups.splice(i, 1);
+          continue;
         }
+        if (p.y > canvas.height + 20) powerups.splice(i, 1);
       }
 
-      snake.unshift(head);
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+        e.y += e.speed;
 
-      // Проверка съедания любого из яблок
-      let ateFoodIndex = -1;
-      for (let i = 0; i < foods.length; i++) {
-        if (head.x === foods[i].x && head.y === foods[i].y) {
-          ateFoodIndex = i;
-          break;
+        for (let j = bullets.length - 1; j >= 0; j--) {
+          const b = bullets[j];
+          if (b.x < e.x + e.w && b.x + b.w > e.x && b.y < e.y + e.h && b.y + b.h > e.y) {
+            createExplosion(e.x + e.w / 2, e.y + e.h / 2, '#ffaa00');
+            haptic('medium');
+            trySpawnPowerup(e.x + e.w / 2, e.y + e.h / 2);
+            enemies.splice(i, 1);
+            bullets.splice(j, 1);
+            score += 20;
+            scoreEl.textContent = score;
+            break;
+          }
         }
+
+        if (e && player.x < e.x + e.w && player.x + player.w > e.x && player.y < e.y + e.h && player.y + player.h > e.y) {
+          enemies.splice(i, 1);
+          if (player.hasShield) {
+            player.hasShield = false;
+            createExplosion(player.x + player.w / 2, player.y + player.h / 2, '#00f0ff');
+            haptic('medium');
+          } else {
+            createExplosion(player.x + player.w / 2, player.y + player.h / 2, '#ff3366');
+            haptic('error');
+            lives--;
+            livesEl.textContent = '♥'.repeat(Math.max(0, lives));
+            if (lives <= 0) {
+              gameOver = true;
+              setTimeout(() => { alert('Игра окончена! Счет: ' + score); resetGame(); }, 100);
+            }
+          }
+          continue;
+        }
+
+        if (e && e.y > canvas.height + 20) enemies.splice(i, 1);
       }
 
-      if (ateFoodIndex !== -1) {
-        score += 10;
-        currentScoreEl.textContent = score;
-        if (score > highScore) {
-          highScore = score;
-          highScoreEl.textContent = highScore;
-          localStorage.setItem('snake_highscore', highScore);
-        }
-        // Удаляем съеденное и спавним новое
-        foods.splice(ateFoodIndex, 1);
-        spawnSingleFood();
-      } else {
-        snake.pop();
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.04;
+        if (p.life <= 0) particles.splice(i, 1);
       }
     }
 
     function draw() {
-      // Очистка поля с мягким шлейфом
-      ctx.fillStyle = '#0d1117';
+      ctx.fillStyle = '#080c16';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Рисуем легкую сетку
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
-      for (let i = 0; i < canvas.width; i += gridSize) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      stars.forEach(s => {
         ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, canvas.height);
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      powerups.forEach(p => {
+        const col = p.type === 'shield' ? '#00f0ff' : '#bd00ff';
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.fillStyle = col;
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(p.type === 'shield' ? 'S' : '2X', p.x, p.y);
+      });
+
+      // Корабль
+      ctx.fillStyle = '#00f0ff';
+      ctx.beginPath();
+      ctx.moveTo(player.x + player.w / 2, player.y);
+      ctx.lineTo(player.x + player.w, player.y + player.h);
+      ctx.lineTo(player.x + player.w / 2, player.y + player.h - 6);
+      ctx.lineTo(player.x, player.y + player.h);
+      ctx.closePath();
+      ctx.fill();
+
+      if (player.hasShield) {
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(canvas.width, i);
+        ctx.arc(player.x + player.w / 2, player.y + player.h / 2, 22, 0, Math.PI * 2);
         ctx.stroke();
       }
 
-      // Рисуем яблоки (неоновые ягоды с сиянием)
-      foods.forEach((food) => {
-        ctx.save();
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = '#ff3366';
-        ctx.fillStyle = '#ff3366';
-        ctx.beginPath();
-        const r = gridSize / 2.3;
-        ctx.arc(food.x + gridSize / 2, food.y + gridSize / 2, r, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Блик на яблоке
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(food.x + gridSize / 2 - 2, food.y + gridSize / 2 - 2, r / 3, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+      // Пули
+      bullets.forEach(b => {
+        ctx.fillStyle = b.color;
+        ctx.fillRect(b.x, b.y, b.w, b.h);
       });
 
-      // Рисуем змейку
-      snake.forEach((seg, index) => {
-        ctx.save();
-        const isHead = index === 0;
-
-        if (isHead) {
-          ctx.fillStyle = '#00f0ff';
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = '#00f0ff';
-        } else {
-          // Градиентное угасание цвета к хвосту
-          const alpha = 1 - (index / (snake.length + 5));
-          ctx.fillStyle = `rgba(0, 180, 216, ${Math.max(alpha, 0.3)})`;
-        }
-
-        // Закругленные сегменты
-        const pad = 1.5;
-        const radius = 5;
+      // Враги
+      ctx.fillStyle = '#ff3366';
+      enemies.forEach(e => {
         ctx.beginPath();
-        ctx.roundRect(seg.x + pad, seg.y + pad, gridSize - pad * 2, gridSize - pad * 2, radius);
+        ctx.moveTo(e.x + e.w / 2, e.y + e.h);
+        ctx.lineTo(e.x + e.w, e.y);
+        ctx.lineTo(e.x, e.y);
+        ctx.closePath();
         ctx.fill();
+      });
 
-        // Рисуем глазки на голове в направлении движения
-        if (isHead) {
-          ctx.fillStyle = '#0d1117';
-          const cx = seg.x + gridSize / 2;
-          const cy = seg.y + gridSize / 2;
-          let eyeX1 = cx, eyeY1 = cy, eyeX2 = cx, eyeY2 = cy;
-
-          if (dx > 0) { // вправо
-            eyeX1 = eyeX2 = cx + 3;
-            eyeY1 = cy - 4; eyeY2 = cy + 4;
-          } else if (dx < 0) { // влево
-            eyeX1 = eyeX2 = cx - 3;
-            eyeY1 = cy - 4; eyeY2 = cy + 4;
-          } else if (dy > 0) { // вниз
-            eyeY1 = eyeY2 = cy + 3;
-            eyeX1 = cx - 4; eyeX2 = cx + 4;
-          } else if (dy < 0) { // вверх
-            eyeY1 = eyeY2 = cy - 3;
-            eyeX1 = cx - 4; eyeX2 = cx + 4;
-          }
-
-          ctx.beginPath();
-          ctx.arc(eyeX1, eyeY1, 1.8, 0, Math.PI * 2);
-          ctx.arc(eyeX2, eyeY2, 1.8, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        ctx.restore();
+      // Частицы
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 2.5, 2.5);
       });
     }
 
-    function gameLoop() {
+    function loop() {
       update();
       draw();
+      requestAnimationFrame(loop);
     }
 
-    // Управление кнопками
-    function moveUp() {
-      if (dy === 0) { nextDx = 0; nextDy = -gridSize; }
-    }
-    function moveDown() {
-      if (dy === 0) { nextDx = 0; nextDy = gridSize; }
-    }
-    function moveLeft() {
-      if (dx === 0) { nextDx = -gridSize; nextDy = 0; }
-    }
-    function moveRight() {
-      if (dx === 0) { nextDx = gridSize; nextDy = 0; }
+    function bind(btn, start, end) {
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); start(); });
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); end(); });
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('mouseup', end);
     }
 
-    // Вешаем слушатели на экранные кнопки
-    document.getElementById('btn-up').addEventListener('touchstart', (e) => { e.preventDefault(); moveUp(); });
-    document.getElementById('btn-up').addEventListener('click', moveUp);
+    bind(document.getElementById('btn-left'), () => moveLeft = true, () => moveLeft = false);
+    bind(document.getElementById('btn-right'), () => moveRight = true, () => moveRight = false);
+    bind(document.getElementById('btn-fire'), () => { isFiring = true; fireBullet(); }, () => isFiring = false);
 
-    document.getElementById('btn-down').addEventListener('touchstart', (e) => { e.preventDefault(); moveDown(); });
-    document.getElementById('btn-down').addEventListener('click', moveDown);
-
-    document.getElementById('btn-left').addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft(); });
-    document.getElementById('btn-left').addEventListener('click', moveLeft);
-
-    document.getElementById('btn-right').addEventListener('touchstart', (e) => { e.preventDefault(); moveRight(); });
-    document.getElementById('btn-right').addEventListener('click', moveRight);
-
-    // Поддержка клавиш клавиатуры (если тестировать с ПК или Bluetooth-клавиатуры)
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp') moveUp();
-      if (e.key === 'ArrowDown') moveDown();
-      if (e.key === 'ArrowLeft') moveLeft();
-      if (e.key === 'ArrowRight') moveRight();
-    });
-
-    // Старт игры со скоростью обновления 110 мс (~9 кадров логики/сек)
-    resetGame();
-    gameInterval = setInterval(gameLoop, 400);
+    requestAnimationFrame(loop);
   </script>
 </body>
 </html>
+
